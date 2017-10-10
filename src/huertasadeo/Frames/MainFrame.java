@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package huertasadeo;
+package huertasadeo.Frames;
 
 import java.io.File;
 import javax.swing.JFileChooser;
@@ -63,6 +63,11 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel3.setText("0 total number of customers");
 
         jButton1.setText("Add");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jButton2.setText("List");
 
@@ -195,6 +200,12 @@ public class MainFrame extends javax.swing.JFrame {
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
         
     }//GEN-LAST:event_jMenuItem4ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        AddCustomerFrame addCustomer = new AddCustomerFrame();
+        addCustomer.pack();
+        addCustomer.setVisible(true);
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments

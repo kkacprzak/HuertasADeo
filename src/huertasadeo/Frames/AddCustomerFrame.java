@@ -3,18 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package huertasadeo;
+package huertasadeo.Frames;
 
 /**
  *
  * @author gastongonzalezovalle
  */
-public class RegisterClient_Form extends javax.swing.JInternalFrame {
+public class AddCustomerFrame extends javax.swing.JFrame {
 
     /**
      * Creates new form RegisterClient_Form
      */
-    public RegisterClient_Form() {
+    public AddCustomerFrame() {
         initComponents();
     }
 

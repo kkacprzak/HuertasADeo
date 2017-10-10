@@ -5,7 +5,7 @@
  */
 package huertasadeo;
 
-import java.awt.BorderLayout;
+import huertasadeo.Frames.MainFrame;
 import javax.swing.JFrame;
 
 /**
@@ -23,7 +23,7 @@ public class HuertasADeo {
         mainFrame.pack();
         mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
         mainFrame.setVisible(true);
-        
+                
     }
     
 }
