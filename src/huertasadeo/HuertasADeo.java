@@ -5,6 +5,9 @@
  */
 package huertasadeo;
 
+import java.awt.BorderLayout;
+import javax.swing.JFrame;
+
 /**
  *
  * @author krzysiek
@@ -15,7 +18,12 @@ public class HuertasADeo {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        MainFrame mainFrame = new MainFrame();
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.pack();
+        mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+        mainFrame.setVisible(true);
+        
     }
     
 }
