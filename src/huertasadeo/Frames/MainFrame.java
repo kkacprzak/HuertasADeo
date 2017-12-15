@@ -6,7 +6,6 @@
 package huertasadeo.Frames;
 
 import fivedots.Lo;
-import com.sun.star.frame.XComponentLoader;
 import com.sun.star.sdb.XOfficeDatabaseDocument;
 import com.sun.star.sdbc.SQLException;
 import com.sun.star.sdbc.XConnection;
@@ -17,8 +16,11 @@ import com.sun.star.sdbc.XStatement;
 import fivedots.Base;
 import huertasadeo.HuertasADeo;
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -44,6 +46,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         jMenu3 = new javax.swing.JMenu();
         jMenu4 = new javax.swing.JMenu();
+        jProgressBar1 = new javax.swing.JProgressBar();
         topPanel = new javax.swing.JPanel();
         titleLabel = new javax.swing.JLabel();
         tabbedPane = new javax.swing.JTabbedPane();
@@ -132,16 +135,9 @@ public class MainFrame extends javax.swing.JFrame {
             Class[] types = new Class [] {
                 java.lang.Integer.class, java.lang.String.class, java.lang.Long.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
-            boolean[] canEdit = new boolean [] {
-                true, false, true, false, false, false
-            };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
-            }
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
             }
         });
         jScrollPane1.setViewportView(customerTable);
@@ -333,61 +329,36 @@ public class MainFrame extends javax.swing.JFrame {
 
     // Action of Menu Item File -> Open File
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        
+
         //Create file chooser with start point of user home
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-        
+
         //definig accepted file format - LibreOffice Base ODB
         fileChooser.setFileFilter(new FileNameExtensionFilter("odb", "odb"));
-        
+
         //check and select
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
-            if(!selectedFile.exists()) {
+            if (!selectedFile.exists()) {
                 statusLabel.setText("Error: selected file does not exist.");
-            }else if(!selectedFile.canRead()){
+            } else if (!selectedFile.canRead()) {
                 statusLabel.setText("Error: cannot read selected file.");
-            }else if(!selectedFile.canWrite()){
-                statusLabel.setText("Error: selected file is not readable.");
-            }else{
-                HuertasADeo.mainFile = selectedFile;
-                statusLabel.setText("Selected file: "+selectedFile.getName());
-                //System.out.print(selectedFile.getAbsolutePath());
-                XComponentLoader loader = Lo.loadOffice(false);
-                XOfficeDatabaseDocument dbDoc 
-                        = Base.openBaseDoc(selectedFile.getAbsolutePath(), loader);
-                if (dbDoc == null) {
-                    System.out.println("Could not open database " 
-                            + selectedFile.getAbsolutePath());
-                    Lo.closeOffice();
-                } else {
-                    XConnection conn;
-                    try {
-                        XDataSource dataSource = dbDoc.getDataSource(); 
-                        conn = dataSource.getConnection("","");
-                        XStatement statement = conn.createStatement();
-                        XResultSet rs = statement.executeQuery("SELECT * FROM \"Customer\"");
-                        XRow xRow = Lo.qi(XRow.class, rs);
-                        while(rs.next())
-                            System.out.println(xRow.getString(1));
-                        Base.closeConnection(conn);
-                        //TODO validate file!
-                    } catch(SQLException e) {
-                        System.out.println(e);
-                    } 
-
+            } else if (!selectedFile.canWrite()) {
+                statusLabel.setText("Error: selected file is not writable.");
+            } else {
+                try {
+                    readSelectedFile(selectedFile);
+                } catch (SQLException ex) {
+                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                Base.closeBaseDoc(dbDoc);
-                Lo.closeOffice();
             }
-            
         }
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
-        
+
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void addCustomerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addCustomerButtonActionPerformed
@@ -416,22 +387,14 @@ public class MainFrame extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        //</editor-fold>
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new MainFrame().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new MainFrame().setVisible(true);
         });
     }
 
@@ -453,6 +416,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
+    private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel ordersTabPanel;
     private javax.swing.JButton refreshCustomersButton;
@@ -463,4 +427,51 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JLabel titleLabel;
     private javax.swing.JPanel topPanel;
     // End of variables declaration//GEN-END:variables
+
+    private void readSelectedFile(File dbFile) throws SQLException {
+
+        XOfficeDatabaseDocument dbDoc = Base.openBaseDoc(
+                dbFile.getAbsolutePath(),
+                HuertasADeo.mainLoader);
+        if (dbDoc == null) {
+            System.out.println("Could not open database file "
+                    + dbFile.getAbsolutePath());
+        } else {
+            XDataSource dataSource = dbDoc.getDataSource();
+            XConnection connection;
+            connection = dataSource.getConnection("", "");
+            XStatement statement = connection.createStatement();
+            boolean tableFillSuccess = fillTable(statement, "Customer", customerTable);
+            Base.closeConnection(connection);
+//            HuertasADeo.mainFile = dbFile;
+//            statusLabel.setText("Selected file: " + dbFile.getName());
+//            statusLabel.setText("Unsuccesful file retrive");
+        }
+
+        Base.closeBaseDoc(dbDoc);
+    }
+
+    private boolean fillTable(
+            XStatement statement,
+            String tableName,
+            javax.swing.JTable table)
+            throws SQLException {
+
+        DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
+        XResultSet resultSet = statement.executeQuery(
+                "SELECT * FROM \"" + tableName + "\"");
+        XRow row = Lo.qi(XRow.class, resultSet);
+        while (resultSet.next()) {
+            String[] rowData = {
+                row.getString(1),
+                row.getString(2),
+                row.getString(3),
+                row.getString(4),
+                row.getString(5),
+                row.getString(6)
+            };
+            tableModel.addRow(rowData);
+        }
+        return false;
+    }
 }
