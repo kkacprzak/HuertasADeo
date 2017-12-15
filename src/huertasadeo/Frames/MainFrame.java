@@ -5,6 +5,16 @@
  */
 package huertasadeo.Frames;
 
+import fivedots.Lo;
+import com.sun.star.frame.XComponentLoader;
+import com.sun.star.sdb.XOfficeDatabaseDocument;
+import com.sun.star.sdbc.SQLException;
+import com.sun.star.sdbc.XConnection;
+import com.sun.star.sdbc.XDataSource;
+import com.sun.star.sdbc.XResultSet;
+import com.sun.star.sdbc.XRow;
+import com.sun.star.sdbc.XStatement;
+import fivedots.Base;
 import huertasadeo.HuertasADeo;
 import java.io.File;
 import javax.swing.JFileChooser;
@@ -53,7 +63,6 @@ public class MainFrame extends javax.swing.JFrame {
         statusLabel = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
@@ -234,7 +243,7 @@ public class MainFrame extends javax.swing.JFrame {
             .addGap(0, 478, Short.MAX_VALUE)
         );
 
-        tabbedPane.addTab("tab6", jPanel1);
+        tabbedPane.addTab("Farmers", jPanel1);
 
         statusPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -259,15 +268,6 @@ public class MainFrame extends javax.swing.JFrame {
         );
 
         jMenu1.setText("File");
-
-        jMenuItem1.setText("New File");
-        jMenuItem1.setEnabled(false);
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem1ActionPerformed(evt);
-            }
-        });
-        jMenu1.add(jMenuItem1);
 
         jMenuItem2.setText("Open File");
         jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
@@ -354,16 +354,37 @@ public class MainFrame extends javax.swing.JFrame {
             }else{
                 HuertasADeo.mainFile = selectedFile;
                 statusLabel.setText("Selected file: "+selectedFile.getName());
-                System.out.print(selectedFile.getAbsolutePath());                
-                //TODO validate file!
+                //System.out.print(selectedFile.getAbsolutePath());
+                XComponentLoader loader = Lo.loadOffice(false);
+                XOfficeDatabaseDocument dbDoc 
+                        = Base.openBaseDoc(selectedFile.getAbsolutePath(), loader);
+                if (dbDoc == null) {
+                    System.out.println("Could not open database " 
+                            + selectedFile.getAbsolutePath());
+                    Lo.closeOffice();
+                } else {
+                    XConnection conn;
+                    try {
+                        XDataSource dataSource = dbDoc.getDataSource(); 
+                        conn = dataSource.getConnection("","");
+                        XStatement statement = conn.createStatement();
+                        XResultSet rs = statement.executeQuery("SELECT * FROM \"Customer\"");
+                        XRow xRow = Lo.qi(XRow.class, rs);
+                        while(rs.next())
+                            System.out.println(xRow.getString(1));
+                        Base.closeConnection(conn);
+                        //TODO validate file!
+                    } catch(SQLException e) {
+                        System.out.println(e);
+                    } 
+
+                }
+                Base.closeBaseDoc(dbDoc);
+                Lo.closeOffice();
             }
             
         }
     }//GEN-LAST:event_jMenuItem2ActionPerformed
-
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
         
@@ -424,7 +445,6 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;

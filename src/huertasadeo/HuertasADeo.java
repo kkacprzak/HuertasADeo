@@ -6,7 +6,6 @@
 package huertasadeo;
 
 import huertasadeo.Frames.MainFrame;
-import java.awt.BorderLayout;
 import java.io.File;
 import javax.swing.JFrame;
 
